@@ -1,0 +1,131 @@
+Create a new service file in the systemd directory. You can name it something like myproject.service:
+sudo nano /etc/systemd/system/astabot.service
+
+
+
+
+Add the following content to the file, adjusting the WorkingDirectory and ExecStart paths to point to your project directory:
+
+[Unit]
+Description=Astabot Service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/orangepi/astabot/
+ExecStart=/bin/bash -c 'make run_all'
+
+[Service]
+WorkingDirectory=/home/orangepi/astabot/
+ExecStart=/bin/bash -c 'python3 run.py'
+Restart=always
+User=orangepi
+Group=orangepi
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/orangepi/.Xauthority"
+
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+[Unit]
+Description=Run Makefile with Docker Compose
+After=network.target docker.service graphical.target
+
+[Service]
+ExecStartPre=/bin/sleep 10
+WorkingDirectory=/home/orangepi/astabot/
+ExecStart=/usr/bin/bash -c "DISPLAY=:0 gnome-terminal -- /usr/bin/python3 run.py"
+ExecStart=/usr/bin/terminator -e "/usr/bin/python3 run.py >> /home/orangepi/astabot/data/logfile.log 2>&1"
+ExecStart=/usr/bin/terminator -e "/usr/bin/python3 run.py"
+Restart=on-failure
+User=orangepi
+Group=orangepi
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/orangepi/.Xauthority"
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl daemon-reload
+sudo systemctl restart astabot.service
+
+journalctl -u astabot.service
+sudo systemctl is-enabled astabot.service
+sudo systemctl enable astabot.service
+
+
+
+
+
+
+
+
+
+
+[Unit]
+Description=Run Makefile with Docker Compose
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=/bin/sleep 10
+WorkingDirectory=/home/orangepi/astabot/
+ExecStart=/usr/bin/terminator -e "/usr/bin/python3 run.py"
+Restart=always
+User=orangepi
+Group=orangepi
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/orangepi/.Xauthority"
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
+
+
+
+
+
+
+After saving the service file, enable it to start on boot:
+sudo systemctl enable astabot.service
+
+You can also start the service immediately without rebooting:
+sudo systemctl start astabot.service
+
+To verify that your service is running correctly, you can check its status with:
+sudo systemctl status astabot.service
+
+This setup will ensure that your project runs automatically every time your Ubuntu system starts.
+If you need to make any changes to the service file, remember to reload the systemd manager configuration with:
+sudo systemctl daemon-reload
+
+######################################################################################################################3
+
+mkdir -p ~/.config/autostart
+nano ~/.config/autostart/run_make_script.desktop
+
+[Desktop Entry]
+Type=Application
+Exec=python3 ~/astabot/run.py
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Run Make Script
+Comment=Runs the make run_all command
+
+chmod +x ~/astabot/run.py
+
+Exec=gnome-terminal -- bash -c "python3 /path/to/your/script.py; exec bash"
+
+
+

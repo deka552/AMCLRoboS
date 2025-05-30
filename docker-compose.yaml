@@ -1,0 +1,123 @@
+# version: '3'
+
+services:
+
+  cartographer:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+    volumes:
+      - ./data:/data/
+      - /tmp/.X11-unix:/tmp/.X11-unix \
+    stdin_open: false
+    tty: false
+    command: ros2 launch turtlebot3_cartographer cartographer.launch.py
+    # command: ["bash"]
+
+    
+  navigation:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+    volumes:
+      - ./data:/data/
+      - /tmp/.X11-unix:/tmp/.X11-unix \
+    command: ros2 launch turtlebot3_navigation2 navigation2.launch.py map:=/data/test_map_2.yaml
+
+  lidar:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+      - USE_RVIZ=$USE_RVIZ
+    volumes:
+      - ./data:/data/
+      - /tmp/.X11-unix:/tmp/.X11-unix \
+    command: ros2 launch lslidar_driver lslidar_launch.py
+
+  uart:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    environment:
+      - ROS_DOMAIN_ID=30
+      - SERIAL_PORT=$SERIAL_PORT
+      - BAUD_RATE=$BAUD_RATE
+      - PACKET_FORMAT=$PACKET_FORMAT
+      - PACKET_FORMAT_RETURN=$PACKET_FORMAT_RETURN
+      - X_Y_FLIP=$X_Y_FLIP
+      - X_DIRECTION=$X_DIRECTION
+      - Y_DIRECTION=$Y_DIRECTION
+      - X_DELTA=$X_DELTA
+      - Y_DELTA=$Y_DELTA
+      - ANGLE_DELTA=$ANGLE_DELTA
+      - SEND_LOCALIZATION=$SEND_LOCALIZATION
+      - VALID_DELTA_X=$VALID_DELTA_X
+      - VALID_DELTA_Y=$VALID_DELTA_Y
+    volumes:
+      - ./data:/data/
+    command: ros2 launch astabot astabot.launch.py
+
+  gazebo:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix \
+    command: ros2 launch turtlebot3_gazebo warehouse_1.launch.py
+
+  save_map:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+    volumes:
+      - ./data/:/data/
+    command: ros2 run nav2_map_server map_saver_cli -f /data/test_map_3
+
