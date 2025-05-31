@@ -128,6 +128,7 @@ RUN apt-get update && apt-get install -y --fix-missing \
 # ....................................................................................
 # ....................................................................................
 
+COPY ./pointcloud_to_laserscan /ros2ws/src/pointcloud_to_laserscan
 COPY ./turtlebot3/DynamixelSDK /ros2ws/src/turtlebot3/DynamixelSDK
 COPY ./turtlebot3/turtlebot3 /ros2ws/src/turtlebot3/turtlebot3
 COPY ./turtlebot3/turtlebot3_msgs /ros2ws/src/turtlebot3/turtlebot3_msgs
@@ -152,6 +153,7 @@ RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash; cd /ros2ws/ && colcon build
 COPY ./astabot /ros2ws/src/astabot
 RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash; cd /ros2ws/ && colcon build --symlink-install'
 
+RUN /bin/bash -c '. /opt/ros/$ROS_DISTRO/setup.bash; cd /ros2ws/ && colcon build --symlink-install --packages-select pointcloud_to_laserscan'
 # ................................................................................................
 # setup ros environment ..........................................................................
 
@@ -166,3 +168,5 @@ COPY ./ros_entrypoint.sh /
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
 CMD ["bash"]
+
+

@@ -121,3 +121,51 @@ services:
       - ./data/:/data/
     command: ros2 run nav2_map_server map_saver_cli -f /data/test_map_3
 
+rosbag_converter:
+  build:
+    context: $ROOT_DIR/
+    dockerfile: $ROOT_DIR/Dockerfile
+  image: astabot:latest
+  network_mode: host
+  ipc: host
+  pid: host
+  environment:
+    - DISPLAY=$DISPLAY
+    - ROS_DOMAIN_ID=30
+  volumes:
+    - ./data:/data/
+    - ./stand2:/stand2/
+  command: ros2 launch pointcloud_to_laserscan play_rosbag_with_conversion.launch.py
+
+# Добавьте этот сервис в docker-compose.yaml:
+
+  rosbag_converter:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - DISPLAY=$DISPLAY
+      - ROS_DOMAIN_ID=30
+      - TURTLEBOT3_MODEL=box
+    volumes:
+      - ./data:/data/
+      - ./stand2:/stand2/
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: ros2 launch pointcloud_to_laserscan play_rosbag_with_conversion.launch.py rosbag_path:=/stand2/stand2_0.db3
+
+  # Для отдельного запуска только конвертера
+  pointcloud_converter:
+    build:
+      context: $ROOT_DIR/
+      dockerfile: $ROOT_DIR/Dockerfile
+    image: astabot:latest
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - ROS_DOMAIN_ID=30
+    command: ros2 launch pointcloud_to_laserscan pointcloud_to_laserscan.launch.py

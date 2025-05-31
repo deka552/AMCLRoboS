@@ -20,7 +20,8 @@ LIADR := lidar
 UART := uart
 GAZ := gazebo
 SAVE_MAP := save_map
-
+ROSBAG_CONVERTER := rosbag_converter
+POINTCLOUD_CONVERTER := pointcloud_converter
 
 # ------------------------------------------------------------------------------
 #                               PARAMETERS
@@ -124,3 +125,17 @@ save_map:
 	@echo "Running: $(SAVE_MAP)"
 	cd $(ROOT_DIR) && $(PARAMETERS) $(RUN_COMMAND) $(SAVE_MAP)
 
+run_rosbag_converter:
+	xhost +local:docker
+	@echo "Running: $(ROSBAG_CONVERTER)"
+	cd $(ROOT_DIR) && $(PARAMETERS) $(RUN_COMMAND) $(ROSBAG_CONVERTER)
+
+run_pointcloud_converter:
+	@echo "Running: $(POINTCLOUD_CONVERTER)"
+	cd $(ROOT_DIR) && $(PARAMETERS) $(RUN_COMMAND) $(POINTCLOUD_CONVERTER)
+
+# Для полного workflow с AMCL
+run_amcl_with_rosbag:
+	xhost +local:docker
+	@echo "Running AMCL with rosbag data"
+	cd $(ROOT_DIR) && $(PARAMETERS) $(RUN_COMMAND) $(ROSBAG_CONVERTER) $(NAV)
